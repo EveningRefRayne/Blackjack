@@ -23,7 +23,7 @@ public class BlackjackLayout : MonoBehaviour {
 	public PT_XMLHashtable xml;
 	public Vector2 multiplier;
 
-	public List<SlotDefB> slotDefs;
+	public List<SlotDefBl> slotDefs;
 	public SlotDefBl drawPile;
 	public SlotDefBl discardPile;
 	public SlotDefBl target;

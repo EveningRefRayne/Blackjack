@@ -19,7 +19,7 @@ public class CardBlackjack : Card {
 	public static string MOVE_EASING = Easing.InOut;
 	public static float CARD_HEIGHT = 3.5f;
 	public static float CARD_WIDTH = 2f;
-	public CBState state = CBState.drawpile;
+	public CBlState state = CBlState.drawpile;
 
 
 	public List<Vector3> bezierPts;
@@ -27,7 +27,7 @@ public class CardBlackjack : Card {
 	public float timeStart, timeDuration;
 
 	public GameObject reportFinishTo = null;
-	public Player callbackPlayer = null;
+	public PlayerBl callbackPlayer = null;
 
 	public int eventualSortOrder;
 	public string eventualSortLayer;
@@ -51,7 +51,7 @@ public class CardBlackjack : Card {
 			timeStart = Time.time;
 		}
 		timeDuration = MOVE_DURATION;
-		state = CBState.to;
+		state = CBlState.to;
 	}
 
 
@@ -64,9 +64,8 @@ public class CardBlackjack : Card {
 	{
 		switch (state)
 		{
-			case CBState.toHand:
-			case CBState.toTarget:
-			case CBState.to:
+			case CBlState.toHand:
+			case CBlState.to:
 				float u = (Time.time - timeStart) / timeDuration;
 				float uC = Easing.Ease (u, MOVE_EASING);
 				if (u < 0)
@@ -78,9 +77,8 @@ public class CardBlackjack : Card {
 				if (u >= 1)
 				{
 					uC = 1;
-					if (state == CBState.toHand) state = CBState.hand;
-					if (state == CBState.toTarget) state = CBState.toTarget;
-					if (state == CBState.to) state = CBState.idle;
+					if (state == CBlState.toHand) state = CBlState.hand;
+					if (state == CBlState.to) state = CBlState.idle;
 					transform.localPosition = bezierPts [bezierPts.Count - 1];
 					transform.rotation = bezierRots [bezierPts.Count - 1];
 					timeStart = 0;
@@ -121,7 +119,7 @@ public class CardBlackjack : Card {
 
 	override public void OnMouseUpAsButton()
 	{
-		Bartok.S.cardClicked (this);
+		Blackjack.S.cardClicked (this);
 		base.OnMouseUpAsButton ();
 	}
 }
