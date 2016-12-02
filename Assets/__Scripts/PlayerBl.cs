@@ -59,7 +59,7 @@ public class PlayerBl {
 			rot = startRot - Blackjack.S.handFanDegrees * i;
 			rotQ = Quaternion.Euler (0, 0, rot);
 			pos = Vector3.up * CardBlackjack.CARD_HEIGHT / 2f;
-			pos += Vector3.right * CardBlackjack.CARD_WIDTH;
+			pos += Vector3.right * CardBlackjack.CARD_WIDTH * 1.5f * i;
 			pos = rotQ * pos;
 			pos += handSlotDef.pos;
 			pos.z = -0.5f * i;
