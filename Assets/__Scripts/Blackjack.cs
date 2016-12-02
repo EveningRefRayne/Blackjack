@@ -21,11 +21,11 @@ public class Blackjack : MonoBehaviour {
 	public BlackjackLayout layout;
 	public Transform layoutAnchor;
 
-	public float handFanDegrees = 10f;
+	public float handFanDegrees = 0f;
 	public List<PlayerBl> players;
 	public CardBlackjack targetCard;
 
-	public int numStartingCards = 7;
+	public int numStartingCards = 2;
 	public float drawTimeStagger = 0.1f;
 
 	public static PlayerBl CURRENT_PLAYER;
@@ -83,15 +83,27 @@ public class Blackjack : MonoBehaviour {
 		arrangeDrawPile ();
 		PlayerBl pl;
 		players = new List<PlayerBl> ();
+		List<SlotDefBl> tShowDefList = new List<SlotDefBl> ();
+		foreach (SlotDefBl tSSD in layout.showDefs)
+		{
+			tShowDefList.Add (tSSD);
+		}
+		int k = 0;
 		foreach (SlotDefBl tSD in layout.slotDefs)
 		{
 			pl = new PlayerBl ();
 			pl.handSlotDef = tSD;
+			pl.showSlotDef = tShowDefList [k];
+			k++;
 			players.Add (pl);
 			pl.playerNum = players.Count;
 		}
 		players [0].type = PlayerType.human;
+		deal ();
+	}
 
+	public void deal()
+	{
 		CardBlackjack tCB;
 		for (int i = 0; i < numStartingCards; i++)
 		{
@@ -100,10 +112,15 @@ public class Blackjack : MonoBehaviour {
 				tCB = draw ();
 				tCB.timeStart = Time.time + drawTimeStagger * (i * 4 + j);
 				players [(j + 1) % 4].addCard (tCB);
+				if (i == 1)
+				{
+					tCB.faceUp = true;
+				}
 			}
 		}
-		Invoke ("drawFirstTarget", drawTimeStagger * (numStartingCards * 4 + 4));
+		startGame ();
 	}
+
 
 	public CardBlackjack draw()
 	{
@@ -111,8 +128,6 @@ public class Blackjack : MonoBehaviour {
 		drawPile.RemoveAt (0);
 		return(cd);
 	}
-
-
 
 	public CardBlackjack moveToDiscard(CardBlackjack tCB)
 	{
@@ -169,14 +184,7 @@ public class Blackjack : MonoBehaviour {
 		turnLight.transform.position = lPos;
 		Utils.tr (Utils.RoundToPlaces (Time.time), "Blackjack.passTurn()", "Old: " + lastPlayerNum, "New: " + CURRENT_PLAYER.playerNum);
 	}
-
-	public bool validPlay(CardBlackjack cb)
-	{
-		if (CURRENT_PLAYER.type == PlayerType.human && cb.faceUp == false) return false;
-		if (cb.rank == targetCard.rank) return true;
-		if (cb.suit == targetCard.suit) return true;
-		return false;
-	}
+		
 
 	public void cardClicked(CardBlackjack tCB)
 	{
@@ -192,21 +200,10 @@ public class Blackjack : MonoBehaviour {
 				phase = TurnPhase.waiting;
 				break;
 			case CBlState.hand:
-				if (validPlay (tCB))
+				if (CURRENT_PLAYER.type == PlayerType.human && tCB.player == 0)
 				{
-					CURRENT_PLAYER.removeCard (tCB);
-
-
-					//Do the stuff you need to do here
-
-
-					tCB.callbackPlayer = CURRENT_PLAYER;
-					Utils.tr (Utils.RoundToPlaces (Time.time), "Blackjack.cardClicked()", "Play", tCB.name, targetCard.name + " is target");
-					phase = TurnPhase.waiting;
-				}
-				else
-				{
-					Utils.tr (Utils.RoundToPlaces (Time.time), "Blackjack.cardClicked()", "Attempted to Play", tCB.name, targetCard.name + " is target");
+					CURRENT_PLAYER.stay = true;
+					passTurn ();
 				}
 				break;
 		}
@@ -226,31 +223,20 @@ public class Blackjack : MonoBehaviour {
 			drawPile = upgradeCardsList (cards);
 			arrangeDrawPile ();
 		}
-		if (CURRENT_PLAYER.hand.Count == 0)
+		int done = 0;
+		foreach (PlayerBl pl in players)
 		{
-			if (CURRENT_PLAYER.type == PlayerType.human)
-			{
-				GTGameOver.GetComponent<Text> ().text = "You Won!";
-				GTRoundResult.GetComponent<Text> ().text = "";
-			}
-			else
-			{
-				GTGameOver.GetComponent<Text> ().text = "Game Over";
-				GTRoundResult.GetComponent<Text> ().text = "Player " + CURRENT_PLAYER.playerNum + " won.";
-			}
-			GTGameOver.SetActive (true);
-			GTRoundResult.SetActive (true);
-			phase = TurnPhase.gameOver;
-			Invoke ("restartGame", 2);
-			return true;
+			if (pl.stay == true) done++;
 		}
-		return false;
+		if (done == 4) return true;
+		else return false;
 	}
-	public void restartGame()
+
+	/*public void restartGame()
 	{
 		CURRENT_PLAYER = null;
 		SceneManager.LoadScene (SceneManager.GetActiveScene ().buildIndex);
-	}
+	}*/
 }
 
 

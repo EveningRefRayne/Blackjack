@@ -24,9 +24,9 @@ public class BlackjackLayout : MonoBehaviour {
 	public Vector2 multiplier;
 
 	public List<SlotDefBl> slotDefs;
+	public List<SlotDefBl> showDefs;
 	public SlotDefBl drawPile;
 	public SlotDefBl discardPile;
-	public SlotDefBl target;
 
 	public void readLayout(string xmlText)
 	{
@@ -62,19 +62,18 @@ public class BlackjackLayout : MonoBehaviour {
 				case "slot":
 					break;
 				case "drawpile":
-					tSD.stagger.x = float.Parse (slotsX [i].att ("xstagger"));
 					drawPile = tSD;
 					break;
 				case "discardpile":
 					discardPile = tSD;
 					break;
-				case "target":
-					target = tSD;
-					break;
 				case "hand":
 					tSD.player = int.Parse (slotsX [i].att ("player"));
 					tSD.rot = float.Parse (slotsX [i].att ("rot"));
 					slotDefs.Add (tSD);
+					break;
+				case "show":
+					showDefs.Add (tSD);
 					break;
 			}
 		}

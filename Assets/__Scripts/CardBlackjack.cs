@@ -8,6 +8,7 @@ public enum CBlState
 	drawpile,
 	toHand,
 	hand,
+	toShow,
 	show,
 	discard,
 	to,
@@ -20,6 +21,7 @@ public class CardBlackjack : Card {
 	public static float CARD_HEIGHT = 3.5f;
 	public static float CARD_WIDTH = 2f;
 	public CBlState state = CBlState.drawpile;
+	public int player;
 
 
 	public List<Vector3> bezierPts;
@@ -79,6 +81,7 @@ public class CardBlackjack : Card {
 					uC = 1;
 					if (state == CBlState.toHand) state = CBlState.hand;
 					if (state == CBlState.to) state = CBlState.idle;
+					if (state == CBlState.toShow) state = CBlState.show;
 					transform.localPosition = bezierPts [bezierPts.Count - 1];
 					transform.rotation = bezierRots [bezierPts.Count - 1];
 					timeStart = 0;
