@@ -119,7 +119,7 @@ public class PlayerBl {
 		int handValue = 0;
 		foreach (CardBlackjack tCB in hand)
 		{
-			tCB.rank += handValue;
+			handValue += Mathf.Min (tCB.rank, 10);
 		}
 		if (handValue > 21)
 		{

@@ -228,15 +228,54 @@ public class Blackjack : MonoBehaviour {
 		{
 			if (pl.stay == true) done++;
 		}
-		if (done == 4) return true;
+		if (done == 4)
+		{
+			phase = TurnPhase.gameOver;
+			foreach(PlayerBl pl in players)
+			{
+				pl.showHand ();
+			}
+			int dealerScore = 0;
+			int playerScore = 0;
+			foreach (CardBlackjack cb in players[0].show)
+			{
+				playerScore += Mathf.Min(cb.rank,10);
+			}
+			foreach (CardBlackjack cb in players[2].show)
+			{
+				dealerScore += Mathf.Min(cb.rank,10);
+			}
+			if (players[0].bust==true || playerScore <= dealerScore)
+			{
+				GTGameOver.GetComponent<Text> ().text = "You lost!";
+				GTRoundResult.GetComponent<Text> ().text = ": (";
+			}
+			else
+			{
+				GTGameOver.GetComponent<Text> ().text = "You Won!";
+				GTRoundResult.GetComponent<Text> ().text = "";
+			}
+
+			GTGameOver.SetActive (true);
+			GTRoundResult.SetActive (true);
+			Invoke ("restartGame", 2);
+			return true;
+		}
 		else return false;
 	}
 
-	/*public void restartGame()
+	public void restartGame()
 	{
 		CURRENT_PLAYER = null;
-		SceneManager.LoadScene (SceneManager.GetActiveScene ().buildIndex);
-	}*/
+		foreach (PlayerBl pl in players)
+		{
+			foreach (CardBlackjack cb in pl.show)
+			{
+				moveToDiscard (cb);
+			}
+		}
+		deal ();
+	}
 }
 
 

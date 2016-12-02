@@ -106,6 +106,7 @@ public class Player {
 	public void CBCallback (CardBlackjack tCB)
 	{
 		Utils.tr (Utils.RoundToPlaces (Time.time), "Player.CBCallback()", tCB.name, "Player " + playerNum);
+		Blackjack.S.passTurn ();
 	}
 
 
