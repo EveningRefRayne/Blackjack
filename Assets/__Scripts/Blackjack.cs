@@ -96,7 +96,7 @@ public class Blackjack : MonoBehaviour {
 			pl.showSlotDef = tShowDefList [k];
 			k++;
 			players.Add (pl);
-			pl.playerNum = players.Count;
+			pl.playerNum = players.Count-1;
 		}
 		players [0].type = PlayerType.human;
 		deal ();
@@ -124,6 +124,26 @@ public class Blackjack : MonoBehaviour {
 
 	public CardBlackjack draw()
 	{
+		if (drawPile.Count <= 0)
+		{
+			List<Card> cards = new List<Card> ();
+			if (discardPile != null)
+			{
+				foreach (CardBlackjack cb in discardPile)
+				{
+					cards.Add (cb);
+				}
+				discardPile.Clear ();
+				Deck.shuffle (ref cards);
+				drawPile = upgradeCardsList (cards);
+				arrangeDrawPile ();
+			}
+			else
+			{
+				print ("It broke! Trying to shuffle in the discard Pile, but it doesn't exist!");
+				Application.Quit ();
+			}
+		}
 		CardBlackjack cd = drawPile [0];
 		drawPile.RemoveAt (0);
 		return(cd);
@@ -174,7 +194,7 @@ public class Blackjack : MonoBehaviour {
 			lastPlayerNum = CURRENT_PLAYER.playerNum;
 			if (checkGameOver ())
 			{
-				return;
+				restartGame ();
 			}
 		}
 		CURRENT_PLAYER = players [num];
@@ -202,6 +222,7 @@ public class Blackjack : MonoBehaviour {
 			case CBlState.hand:
 				if (CURRENT_PLAYER.type == PlayerType.human && tCB.player == 0)
 				{
+					print ("Stay");
 					CURRENT_PLAYER.stay = true;
 					passTurn ();
 				}
@@ -211,30 +232,29 @@ public class Blackjack : MonoBehaviour {
 
 	public bool checkGameOver()
 	{
-		if (drawPile.Count == 0)
-		{
-			List<Card> cards = new List<Card> ();
-			foreach (CardBlackjack cb in discardPile)
-			{
-				cards.Add (cb);
-			}
-			discardPile.Clear ();
-			Deck.shuffle (ref cards);
-			drawPile = upgradeCardsList (cards);
-			arrangeDrawPile ();
-		}
 		int done = 0;
 		foreach (PlayerBl pl in players)
 		{
-			if (pl.stay == true) done++;
+			if (pl.stay == true || pl.bust == true) done++;
 		}
 		if (done == 4)
 		{
 			phase = TurnPhase.gameOver;
-			foreach(PlayerBl pl in players)
+			foreach (PlayerBl pl in players)
 			{
 				pl.showHand ();
 			}
+			Invoke ("calculateScores", 2);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public void calculateScores()
+	{
 			int dealerScore = 0;
 			int playerScore = 0;
 			foreach (CardBlackjack cb in players[0].show)
@@ -259,11 +279,7 @@ public class Blackjack : MonoBehaviour {
 			GTGameOver.SetActive (true);
 			GTRoundResult.SetActive (true);
 			Invoke ("restartGame", 2);
-			return true;
 		}
-		else return false;
-	}
-
 	public void restartGame()
 	{
 		CURRENT_PLAYER = null;

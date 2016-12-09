@@ -8,6 +8,7 @@ using System.Linq;
 public class PlayerBl {
 	public PlayerType type = PlayerType.ai;
 	public int playerNum;
+	public int handValue;
 	public List<CardBlackjack> hand;
 	public List<CardBlackjack> show;
 	public SlotDefBl handSlotDef;
@@ -42,6 +43,7 @@ public class PlayerBl {
 			tCB.setSortingLayerName ("10");
 			tCB.eventualSortLayer = handSlotDef.layerName;
 		}
+		hand.Clear ();
 	}
 
 	public void fanHand()
@@ -86,7 +88,7 @@ public class PlayerBl {
 		Vector3 pos;
 		float rot;
 		Quaternion rotQ;
-		for (int i=0;i<hand.Count;i++)
+		for (int i=0;i<show.Count;i++)
 		{
 			rot = startRot - Blackjack.S.handFanDegrees * i;
 			rotQ = Quaternion.Euler (0, 0, rot);
@@ -109,14 +111,12 @@ public class PlayerBl {
 
 	public void takeTurn()
 	{
-		if (bust == true)
-		Utils.tr (Utils.RoundToPlaces (Time.time), "Player.takeTurn");
 		if (type == PlayerType.human && bust == false) return;
 		else if (bust == true) Blackjack.S.passTurn ();
 		else if (stay == true) Blackjack.S.passTurn ();
 		Blackjack.S.phase = TurnPhase.waiting;
 		CardBlackjack cb;
-		int handValue = 0;
+		handValue = 0;
 		foreach (CardBlackjack tCB in hand)
 		{
 			handValue += Mathf.Min (tCB.rank, 10);
